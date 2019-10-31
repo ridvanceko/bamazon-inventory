@@ -30,7 +30,7 @@ var promptCustomer = function (res) {
     inquirer.prompt([{
         type: "input",
         name: "select",
-        message: "What would you like to buy? [Quit with Q]",
+        message: "Choose product with id? [Quit with Q]",
     },
     {
         type: "input",
@@ -39,21 +39,39 @@ var promptCustomer = function (res) {
     }]).then(function (answer) {
         console.log(answer)
         // console.log(res);
-        var correct = false;
-        
 
-        connection.query("SELECT * FROM products WHERE itemid = ?",[answer.select], function (err, res) {
-            console.log(res);
+        var correct = false;
+
+
+        connection.query("SELECT * FROM products WHERE itemid = ?", [answer.select], function (err, res) {
+            console.log(res[0].stock_quantity);
+            if (res[0].stock_quantity > answer.quantity) {
+                console.log("Item Purchased!");
+
+                var newQuantity= res[0].stock_quantity - answer.quantity;
+                
+                // res[0].stock_quantity;
+                connection.query("UPDATE products SET stock_quantity=?  WHERE itemid = ?", [newQuantity,answer.select])
+            }
+            
+      
+            else if(res[0].stock_quantity < answer.quantity) {
+                console.log("Insufficient quantity!");
+            }
+
         })
 
         for (var i = 0; i < res.length; i++) {
-            
+
             // console.log(i);
             if (res[i].product_name.toLowerCase() == answer.select.toLowerCase()) {
                 correct = true;
                 var product = answer.select;
                 var id = i;
-            }}})}
+            }
+        }
+    })
+}
 
 
                 // .then(function (answer2) {

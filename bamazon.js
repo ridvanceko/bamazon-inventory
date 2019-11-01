@@ -9,6 +9,8 @@ let connection = mysql.createConnection({
     database: "bamazon"
 })
 
+let cost = 0;
+
 connection.connect(function (err) {
     if (err) throw err;
     console.log("Connected");
@@ -49,9 +51,16 @@ var promptCustomer = function (res) {
                 console.log("Item Purchased!");
 
                 var newQuantity= res[0].stock_quantity - answer.quantity;
+                cost = cost + answer.quantity * res[0].price; 
+                // console.log(res[0].price)
                 
                 // res[0].stock_quantity;
-                connection.query("UPDATE products SET stock_quantity=?  WHERE itemid = ?", [newQuantity,answer.select])
+                connection.query("UPDATE products SET stock_quantity=?  WHERE itemid = ?", [newQuantity,answer.select], function(err){
+
+                    if(err) throw(err); 
+                    makeTable();
+                })
+                console.log("Your Cost: " + cost);
             }
             
       
